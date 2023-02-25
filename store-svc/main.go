@@ -16,49 +16,57 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 	mux.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-	mux.Get("/store/item/{itemID}", func(w http.ResponseWriter, r *http.Request) {
-		itemID := chi.URLParam(r, "itemID")
-		itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
-		if err != nil {
-			errorMessage := map[string]any{
-				"error": "itemID is required",
+
+	mux.Route("/store/item/{itemID}", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			itemID := chi.URLParam(r, "itemID")
+			itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": "itemID is required",
+				}
+				utils.Respond(w, http.StatusBadRequest, errorMessage)
+				return
 			}
-			utils.Respond(w, http.StatusBadRequest, errorMessage)
-			return
-		}
-		err = controller.GetItem(itemIDAsInt)
-		if err != nil {
-			errorMessage := map[string]any{
-				"error": err.Error(),
+			err = controller.GetItem(itemIDAsInt)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": err.Error(),
+				}
+				utils.Respond(w, http.StatusNotFound, errorMessage)
+				return
 			}
-			utils.Respond(w, http.StatusNotFound, errorMessage)
-			return
-		}
-		utils.Respond(w, http.StatusOK, nil)
-	})
-	mux.Post("/store/item/{itemID}/reserve", func(w http.ResponseWriter, r *http.Request) {
-		itemID := chi.URLParam(r, "itemID")
-		itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
-		if err != nil {
-			errorMessage := map[string]any{
-				"error": "itemID is required",
+			data := map[string]any{
+				"message": "item exists in stock",
 			}
-			utils.Respond(w, http.StatusBadRequest, errorMessage)
-			return
-		}
-		controller.ReserveItem(itemIDAsInt)
-	})
-	mux.Post("/store/item/{itemID}/book", func(w http.ResponseWriter, r *http.Request) {
-		itemID := chi.URLParam(r, "itemID")
-		itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
-		if err != nil {
-			errorMessage := map[string]any{
-				"error": "itemID is required",
+			utils.Respond(w, http.StatusOK, data)
+		})
+
+		r.Post("/reserve", func(w http.ResponseWriter, r *http.Request) {
+			itemID := chi.URLParam(r, "itemID")
+			itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": "itemID is required",
+				}
+				utils.Respond(w, http.StatusBadRequest, errorMessage)
+				return
 			}
-			utils.Respond(w, http.StatusBadRequest, errorMessage)
-			return
-		}
-		controller.BookItem(itemIDAsInt)
+			controller.ReserveItem(itemIDAsInt)
+		})
+
+		r.Post("/book", func(w http.ResponseWriter, r *http.Request) {
+			itemID := chi.URLParam(r, "itemID")
+			itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": "itemID is required",
+				}
+				utils.Respond(w, http.StatusBadRequest, errorMessage)
+				return
+			}
+			controller.BookItem(itemIDAsInt)
+		})
 	})
 }
 
