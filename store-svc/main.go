@@ -7,7 +7,7 @@ import (
 
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/controllers"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/db"
-	"github.com/Roy19/distributed-transaction-2pc/store-svc/utils"
+	"github.com/Roy19/distributed-transaction-2pc/utils"
 	"github.com/go-chi/chi/v5"
 )
 
