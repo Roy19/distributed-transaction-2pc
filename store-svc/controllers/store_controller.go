@@ -1,6 +1,9 @@
 package controllers
 
+import "github.com/Roy19/distributed-transaction-2pc/store-svc/repository"
+
 type StoreController struct {
+	StoreRepository *repository.StoreRepository
 }
 
 func (c *StoreController) GetItem(itemID int64) {

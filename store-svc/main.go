@@ -7,6 +7,7 @@ import (
 
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/controllers"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/db"
+	"github.com/Roy19/distributed-transaction-2pc/store-svc/repository"
 	"github.com/Roy19/distributed-transaction-2pc/utils"
 	"github.com/go-chi/chi/v5"
 )
@@ -56,7 +57,9 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 func initDependencies() *controllers.StoreController {
 	db.InitDB()
 	db.PutDummyData()
-	return &controllers.StoreController{}
+	return &controllers.StoreController{
+		StoreRepository: &repository.StoreRepository{},
+	}
 }
 
 func main() {
