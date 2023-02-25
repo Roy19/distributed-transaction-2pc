@@ -11,7 +11,7 @@ import (
 type StoreRepository struct {
 }
 
-func (s *StoreRepository) GetItem(itemID int) (int64, error) {
+func (s *StoreRepository) GetItem(itemID int64) (int64, error) {
 	var item models.StoreItem
 	txOut := db.DB.First(&item, itemID)
 	if txOut.Error == gorm.ErrRecordNotFound {

@@ -26,7 +26,15 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 			utils.Respond(w, http.StatusBadRequest, errorMessage)
 			return
 		}
-		controller.GetItem(itemIDAsInt)
+		err = controller.GetItem(itemIDAsInt)
+		if err != nil {
+			errorMessage := map[string]any{
+				"error": err.Error(),
+			}
+			utils.Respond(w, http.StatusNotFound, errorMessage)
+			return
+		}
+		utils.Respond(w, http.StatusOK, nil)
 	})
 	mux.Post("/store/item/{itemID}/reserve", func(w http.ResponseWriter, r *http.Request) {
 		itemID := chi.URLParam(r, "itemID")

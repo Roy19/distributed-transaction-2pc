@@ -6,8 +6,9 @@ type StoreController struct {
 	StoreRepository *repository.StoreRepository
 }
 
-func (c *StoreController) GetItem(itemID int64) {
-	// check if item exists in db
+func (c *StoreController) GetItem(itemID int64) error {
+	_, err := c.StoreRepository.GetItem(itemID)
+	return err
 }
 
 func (c *StoreController) ReserveItem(itemID int64) {
