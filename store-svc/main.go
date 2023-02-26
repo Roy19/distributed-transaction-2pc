@@ -52,7 +52,18 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 				utils.Respond(w, http.StatusBadRequest, errorMessage)
 				return
 			}
-			controller.ReserveItem(itemIDAsInt)
+			err = controller.ReserveItem(itemIDAsInt)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": err.Error(),
+				}
+				utils.Respond(w, http.StatusNotFound, errorMessage)
+				return
+			}
+			data := map[string]any{
+				"message": "item reserved",
+			}
+			utils.Respond(w, http.StatusOK, data)
 		})
 
 		r.Post("/book", func(w http.ResponseWriter, r *http.Request) {

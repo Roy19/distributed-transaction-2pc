@@ -8,6 +8,7 @@ import (
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -18,7 +19,9 @@ var (
 func InitDB() {
 	dbonce.Do(func() {
 		dsn := os.Getenv("DB_DSN")
-		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
 		if err != nil {
 			log.Fatalf("Error connecting to database: %v\n", err)
 		}
