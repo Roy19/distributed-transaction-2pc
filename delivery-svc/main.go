@@ -79,7 +79,7 @@ func initDependencies() *controllers.DeliveryAgentController {
 	store_dsn := os.Getenv("DELIVERY_DSN")
 	db.InitDB(store_dsn, "delivery-svc")
 	db.MigrateModels("delivery-svc", models.DeliveryAgentReservation{})
-	// db.PutDummyDataDeliveryAgent("delivery-svc")
+	db.PutDummyDataDeliveryAgent("delivery-svc")
 	return &controllers.DeliveryAgentController{
 		DeliveryAgentRepository: &repository.DeliveryAgentRepository{},
 	}
@@ -89,7 +89,7 @@ func main() {
 	mux := chi.NewRouter()
 	controller := initDependencies()
 	initRoutes(mux, controller)
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8081", mux); err != nil {
 		log.Fatal("failed to start server")
 	}
 }

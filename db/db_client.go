@@ -9,7 +9,6 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var (
@@ -20,9 +19,7 @@ var (
 func InitDB(dsn string, svcName string) {
 	dbonce.Do(func() {
 		dbClients = make(map[string]*gorm.DB)
-		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
-		})
+		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 		if err != nil {
 			log.Fatalf("Error connecting to database: %v\n", err)
 		}

@@ -121,7 +121,7 @@ func initDependencies() *controllers.StoreController {
 	store_dsn := os.Getenv("STORE_DSN")
 	db.InitDB(store_dsn, "store-svc")
 	db.MigrateModels("store-svc", models.StoreItem{}, models.StoreItemReservation{})
-	//db.PutDummyData()
+	db.PutDummyDataStoreSvc("store-svc")
 	return &controllers.StoreController{
 		StoreRepository: &repository.StoreRepository{},
 	}
