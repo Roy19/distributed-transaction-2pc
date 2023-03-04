@@ -1,11 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"database/sql"
+
+	"gorm.io/gorm"
+)
 
 type StoreItemReservation struct {
 	gorm.Model
 	StoreItemID    int
 	StoreItem      StoreItem
 	IsReserved     bool
-	CurrentOrderId string
+	CurrentOrderId sql.NullString
 }
