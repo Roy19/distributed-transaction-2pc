@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/controllers"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/db"
+	"github.com/Roy19/distributed-transaction-2pc/store-svc/dto"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/repository"
 	"github.com/Roy19/distributed-transaction-2pc/utils"
 	"github.com/go-chi/chi/v5"
@@ -69,7 +72,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 
 		r.Post("/book", func(w http.ResponseWriter, r *http.Request) {
 			itemID := chi.URLParam(r, "itemID")
-			itemIDAsInt, err := strconv.ParseInt(itemID, 10, 64)
+			_, err := strconv.ParseInt(itemID, 10, 64)
 			if err != nil {
 				errorMessage := map[string]any{
 					"error": "itemID is required",
@@ -77,14 +80,44 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 				utils.Respond(w, http.StatusBadRequest, errorMessage)
 				return
 			}
-			controller.BookItem(itemIDAsInt)
+			var bookItem dto.BookItemDto
+			data, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": "failed to read json",
+				}
+				utils.Respond(w, http.StatusBadRequest, errorMessage)
+				return
+			}
+			defer r.Body.Close()
+			err = json.Unmarshal(data, &bookItem)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": "failed to unmarshal json",
+				}
+				utils.Respond(w, http.StatusBadRequest, errorMessage)
+				return
+			}
+			err = controller.BookItem(bookItem.ReservationID, bookItem.OrderID)
+			if err != nil {
+				errorMessage := map[string]any{
+					"error": err.Error(),
+				}
+				utils.Respond(w, http.StatusInternalServerError, errorMessage)
+				return
+			} else {
+				data := map[string]any{
+					"message": "item booked",
+				}
+				utils.Respond(w, http.StatusOK, data)
+			}
 		})
 	})
 }
 
 func initDependencies() *controllers.StoreController {
 	db.InitDB()
-	db.PutDummyData()
+	//db.PutDummyData()
 	return &controllers.StoreController{
 		StoreRepository: &repository.StoreRepository{},
 	}
