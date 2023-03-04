@@ -52,7 +52,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 				utils.Respond(w, http.StatusBadRequest, errorMessage)
 				return
 			}
-			err = controller.ReserveItem(itemIDAsInt)
+			id, err := controller.ReserveItem(itemIDAsInt)
 			if err != nil {
 				errorMessage := map[string]any{
 					"error": err.Error(),
@@ -62,6 +62,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 			}
 			data := map[string]any{
 				"message": "item reserved",
+				"id":      id,
 			}
 			utils.Respond(w, http.StatusOK, data)
 		})

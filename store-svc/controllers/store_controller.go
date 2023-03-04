@@ -12,15 +12,18 @@ type StoreController struct {
 
 func (c *StoreController) GetItem(itemID int64) error {
 	_, err := c.StoreRepository.GetItem(itemID)
+	if err != nil {
+		log.Printf("[ERROR] Failed to get item from db")
+	}
 	return err
 }
 
-func (c *StoreController) ReserveItem(itemID int64) error {
-	err := c.StoreRepository.CreateReservation(itemID)
+func (c *StoreController) ReserveItem(itemID int64) (uint, error) {
+	id, err := c.StoreRepository.CreateReservation(itemID)
 	if err != nil {
 		log.Printf("[ERROR] Failed to create a reservation on that item")
 	}
-	return err
+	return id, err
 }
 
 func (c *StoreController) BookItem(itemID int64) {

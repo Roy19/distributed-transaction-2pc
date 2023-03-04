@@ -20,7 +20,7 @@ func (s *StoreRepository) GetItem(itemID int64) (int64, error) {
 	return int64(item.ID), nil
 }
 
-func (s *StoreRepository) CreateReservation(itemID int64) error {
+func (s *StoreRepository) CreateReservation(itemID int64) (uint, error) {
 	txn := db.DB.Model(&models.StoreItemReservation{}).Begin()
 	var storeReservation models.StoreItemReservation
 	txn = txn.Raw(`select * from store_item_reservations 
@@ -28,15 +28,15 @@ func (s *StoreRepository) CreateReservation(itemID int64) error {
 		for update`, int(itemID)).Scan(&storeReservation)
 	if txn.Error != nil || txn.RowsAffected == 0 {
 		txn.Rollback()
-		return fmt.Errorf("no more reservations can be done on item")
+		return 0, fmt.Errorf("no more reservations can be done on item")
 	}
 	txn = txn.Exec(`update store_item_reservations
 			set is_reserved = true
 			where id = ?`, storeReservation.ID)
 	if txn.Error != nil {
 		txn.Rollback()
-		return fmt.Errorf("failed to set lock on store item")
+		return 0, fmt.Errorf("failed to set lock on store item")
 	}
 	txn.Commit()
-	return nil
+	return storeReservation.ID, nil
 }
