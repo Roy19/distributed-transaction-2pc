@@ -11,6 +11,7 @@ import (
 	"github.com/Roy19/distributed-transaction-2pc/db"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/controllers"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/dto"
+	"github.com/Roy19/distributed-transaction-2pc/store-svc/models"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/repository"
 	"github.com/Roy19/distributed-transaction-2pc/utils"
 	"github.com/go-chi/chi/v5"
@@ -119,6 +120,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 func initDependencies() *controllers.StoreController {
 	store_dsn := os.Getenv("STORE_DSN")
 	db.InitDB(store_dsn, "store-svc")
+	db.MigrateModels("store-svc", models.StoreItem{}, models.StoreItemReservation{})
 	//db.PutDummyData()
 	return &controllers.StoreController{
 		StoreRepository: &repository.StoreRepository{},

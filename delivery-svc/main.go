@@ -10,6 +10,7 @@ import (
 	"github.com/Roy19/distributed-transaction-2pc/db"
 	"github.com/Roy19/distributed-transaction-2pc/delivery-svc/controllers"
 	"github.com/Roy19/distributed-transaction-2pc/delivery-svc/dto"
+	"github.com/Roy19/distributed-transaction-2pc/delivery-svc/models"
 	"github.com/Roy19/distributed-transaction-2pc/delivery-svc/repository"
 	"github.com/Roy19/distributed-transaction-2pc/utils"
 	"github.com/go-chi/chi/v5"
@@ -77,7 +78,8 @@ func initRoutes(mux *chi.Mux, controller *controllers.DeliveryAgentController) {
 func initDependencies() *controllers.DeliveryAgentController {
 	store_dsn := os.Getenv("DELIVERY_DSN")
 	db.InitDB(store_dsn, "delivery-svc")
-	db.PutDummyDataDeliveryAgent("delivery-svc")
+	db.MigrateModels("delivery-svc", models.DeliveryAgentReservation{})
+	// db.PutDummyDataDeliveryAgent("delivery-svc")
 	return &controllers.DeliveryAgentController{
 		DeliveryAgentRepository: &repository.DeliveryAgentRepository{},
 	}

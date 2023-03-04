@@ -4,7 +4,9 @@ import (
 	"log"
 	"sync"
 
-	"github.com/Roy19/distributed-transaction-2pc/store-svc/models"
+	deliveryAgentSvcModels "github.com/Roy19/distributed-transaction-2pc/delivery-svc/models"
+	storeSvcModels "github.com/Roy19/distributed-transaction-2pc/store-svc/models"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,6 +19,7 @@ var (
 
 func InitDB(dsn string, svcName string) {
 	dbonce.Do(func() {
+		dbClients = make(map[string]*gorm.DB)
 		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
 		})
@@ -24,8 +27,6 @@ func InitDB(dsn string, svcName string) {
 			log.Fatalf("Error connecting to database: %v\n", err)
 		}
 		dbClients[svcName] = dbClient
-		dbClients[svcName].AutoMigrate(&models.StoreItem{})
-		dbClients[svcName].AutoMigrate(&models.StoreItemReservation{})
 	})
 }
 
@@ -33,13 +34,21 @@ func GetDBClient(svcName string) *gorm.DB {
 	return dbClients[svcName]
 }
 
-func PutDummyData(svcName string) {
+func MigrateModels(svcName string, models ...interface{}) {
 	if dbClients[svcName] != nil {
-		storeItem := models.StoreItem{
+		for _, model := range models {
+			dbClients[svcName].AutoMigrate(&model)
+		}
+	}
+}
+
+func PutDummyDataStoreSvc(svcName string) {
+	if dbClients[svcName] != nil {
+		storeItem := storeSvcModels.StoreItem{
 			Name: "iPhone 12",
 		}
 		dbClients[svcName].Create(&storeItem)
-		storeItemReservations := []models.StoreItemReservation{
+		storeItemReservations := []storeSvcModels.StoreItemReservation{
 			{
 				StoreItem:  storeItem,
 				IsReserved: false,
@@ -82,5 +91,43 @@ func PutDummyData(svcName string) {
 			},
 		}
 		dbClients[svcName].Create(&storeItemReservations)
+	}
+}
+
+func PutDummyDataDeliveryAgent(svcName string) {
+	if dbClients[svcName] != nil {
+		deliveryAgentReservations := []deliveryAgentSvcModels.DeliveryAgentReservation{
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+			{
+				IsReserved: false,
+			},
+		}
+		dbClients[svcName].Create(&deliveryAgentReservations)
 	}
 }
