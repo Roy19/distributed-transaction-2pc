@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 
-	"github.com/Roy19/distributed-transaction-2pc/store-svc/db"
+	"github.com/Roy19/distributed-transaction-2pc/db"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/models"
 	"gorm.io/gorm"
 )

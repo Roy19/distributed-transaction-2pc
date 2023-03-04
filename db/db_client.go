@@ -2,7 +2,6 @@ package db
 
 import (
 	"log"
-	"os"
 	"sync"
 
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/models"
@@ -16,9 +15,8 @@ var (
 	dbonce sync.Once
 )
 
-func InitDB() {
+func InitDB(dsn string) {
 	dbonce.Do(func() {
-		dsn := os.Getenv("DB_DSN")
 		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
 		})

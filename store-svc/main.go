@@ -5,10 +5,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/Roy19/distributed-transaction-2pc/db"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/controllers"
-	"github.com/Roy19/distributed-transaction-2pc/store-svc/db"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/dto"
 	"github.com/Roy19/distributed-transaction-2pc/store-svc/repository"
 	"github.com/Roy19/distributed-transaction-2pc/utils"
@@ -116,7 +117,8 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 }
 
 func initDependencies() *controllers.StoreController {
-	db.InitDB()
+	store_dsn := os.Getenv("STORE_DSN")
+	db.InitDB(store_dsn)
 	//db.PutDummyData()
 	return &controllers.StoreController{
 		StoreRepository: &repository.StoreRepository{},
