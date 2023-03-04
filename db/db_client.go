@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	DB     *gorm.DB
-	dbonce sync.Once
+	dbClients map[string]*gorm.DB
+	dbonce    sync.Once
 )
 
-func InitDB(dsn string) {
+func InitDB(dsn string, svcName string) {
 	dbonce.Do(func() {
 		dbClient, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
@@ -23,18 +23,22 @@ func InitDB(dsn string) {
 		if err != nil {
 			log.Fatalf("Error connecting to database: %v\n", err)
 		}
-		DB = dbClient
-		DB.AutoMigrate(&models.StoreItem{})
-		DB.AutoMigrate(&models.StoreItemReservation{})
+		dbClients[svcName] = dbClient
+		dbClients[svcName].AutoMigrate(&models.StoreItem{})
+		dbClients[svcName].AutoMigrate(&models.StoreItemReservation{})
 	})
 }
 
-func PutDummyData() {
-	if DB != nil {
+func GetDBClient(svcName string) *gorm.DB {
+	return dbClients[svcName]
+}
+
+func PutDummyData(svcName string) {
+	if dbClients[svcName] != nil {
 		storeItem := models.StoreItem{
 			Name: "iPhone 12",
 		}
-		DB.Create(&storeItem)
+		dbClients[svcName].Create(&storeItem)
 		storeItemReservations := []models.StoreItemReservation{
 			{
 				StoreItem:  storeItem,
@@ -77,6 +81,6 @@ func PutDummyData() {
 				IsReserved: false,
 			},
 		}
-		DB.Create(&storeItemReservations)
+		dbClients[svcName].Create(&storeItemReservations)
 	}
 }

@@ -13,7 +13,7 @@ type StoreRepository struct {
 
 func (s *StoreRepository) GetItem(itemID int64) (int64, error) {
 	var item models.StoreItem
-	txOut := db.DB.First(&item, itemID)
+	txOut := db.GetDBClient("store-svc").First(&item, itemID)
 	if txOut.Error == gorm.ErrRecordNotFound {
 		return 0, fmt.Errorf("item not found")
 	}
@@ -21,7 +21,7 @@ func (s *StoreRepository) GetItem(itemID int64) (int64, error) {
 }
 
 func (s *StoreRepository) CreateReservation(itemID int64) (uint, error) {
-	txn := db.DB.Model(&models.StoreItemReservation{}).Begin()
+	txn := db.GetDBClient("store-svc").Model(&models.StoreItemReservation{}).Begin()
 	var storeReservation models.StoreItemReservation
 	txn = txn.Raw(`select * from store_item_reservations 
 		where is_reserved = false and current_order_id is null and 
@@ -43,7 +43,7 @@ func (s *StoreRepository) CreateReservation(itemID int64) (uint, error) {
 }
 
 func (c *StoreRepository) BookItem(reservationID int64, orderID string) error {
-	txn := db.DB.Model(&models.StoreItemReservation{}).Begin()
+	txn := db.GetDBClient("store-svc").Model(&models.StoreItemReservation{}).Begin()
 	var storeReservation models.StoreItemReservation
 	txn = txn.Raw(`select * from store_item_reservations 
 		where is_reserved = true and id = ?

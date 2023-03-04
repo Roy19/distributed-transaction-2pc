@@ -118,7 +118,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.StoreController) {
 
 func initDependencies() *controllers.StoreController {
 	store_dsn := os.Getenv("STORE_DSN")
-	db.InitDB(store_dsn)
+	db.InitDB(store_dsn, "store-svc")
 	//db.PutDummyData()
 	return &controllers.StoreController{
 		StoreRepository: &repository.StoreRepository{},
