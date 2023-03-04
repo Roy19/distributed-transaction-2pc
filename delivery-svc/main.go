@@ -66,7 +66,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.DeliveryAgentController) {
 				return
 			} else {
 				data := map[string]any{
-					"message": "item booked",
+					"message": "delivery agent booked",
 				}
 				utils.Respond(w, http.StatusOK, data)
 			}
@@ -77,7 +77,7 @@ func initRoutes(mux *chi.Mux, controller *controllers.DeliveryAgentController) {
 func initDependencies() *controllers.DeliveryAgentController {
 	store_dsn := os.Getenv("DELIVERY_DSN")
 	db.InitDB(store_dsn, "delivery-svc")
-	//db.PutDummyData()
+	db.PutDummyDataDeliveryAgent("delivery-svc")
 	return &controllers.DeliveryAgentController{
 		DeliveryAgentRepository: &repository.DeliveryAgentRepository{},
 	}
